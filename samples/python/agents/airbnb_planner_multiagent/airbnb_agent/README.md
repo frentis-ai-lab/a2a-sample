@@ -2,7 +2,9 @@
 
 ## Getting started
 
-1. Create a `.env` file using the `example.env` file as a template.
+1. Create a `.env` file using the `example.env` file as a template. Populate
+   `GOOGLE_API_KEY` with your Gemini Developer API key and keep
+   `GOOGLE_GENAI_USE_VERTEXAI=FALSE` so the agent uses the hosted Google APIs.
 
 2. Start the server
 
