@@ -10,7 +10,10 @@ from google.adk.tools.mcp_tool.mcp_toolset import (
 
 def create_weather_agent() -> LlmAgent:
     """Constructs the ADK agent."""
-    LITELLM_MODEL = os.getenv('LITELLM_MODEL', 'gemini-2.5-flash')
+    # Use the Google AI Studio routing of LiteLLM by default. Prefixing the
+    # model name with "gemini/" prevents the client from treating it as a
+    # Vertex AI model (which would require ADC credentials).
+    LITELLM_MODEL = os.getenv('LITELLM_MODEL', 'gemini/gemini-2.5-flash')
     return LlmAgent(
         model=LiteLlm(model=LITELLM_MODEL),
         name='weather_agent',

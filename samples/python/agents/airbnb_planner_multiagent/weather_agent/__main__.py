@@ -28,6 +28,11 @@ from weather_agent import (
 
 load_dotenv()
 
+# LiteLLM expects the Gemini key under GEMINI_API_KEY; map GOOGLE_API_KEY when
+# present so the agent can call Google AI Studio without Vertex credentials.
+if os.getenv('GOOGLE_API_KEY') and not os.getenv('GEMINI_API_KEY'):
+    os.environ['GEMINI_API_KEY'] = os.environ['GOOGLE_API_KEY']
+
 logging.basicConfig()
 
 DEFAULT_HOST = '0.0.0.0'

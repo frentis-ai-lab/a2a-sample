@@ -228,19 +228,16 @@ class RoutingAgent:
 
         if not client:
             raise ValueError(f'Client not available for {agent_name}')
-        task_id = state['task_id'] if 'task_id' in state else str(uuid.uuid4())
 
-        if 'context_id' in state:
-            context_id = state['context_id']
-        else:
-            context_id = str(uuid.uuid4())
+        # Reuse previously assigned identifiers when continuing an existing task.
+        task_id = state.get('task_id')
+        context_id = state.get('context_id')
 
-        message_id = ''
-        metadata = {}
-        if 'input_message_metadata' in state:
-            metadata.update(**state['input_message_metadata'])
-            if 'message_id' in state['input_message_metadata']:
-                message_id = state['input_message_metadata']['message_id']
+        message_id = (
+            state.get('input_message_metadata', {}).get('message_id')
+            if isinstance(state.get('input_message_metadata'), dict)
+            else None
+        )
         if not message_id:
             message_id = str(uuid.uuid4())
 
@@ -279,7 +276,14 @@ class RoutingAgent:
             print('received non-task response. Aborting get task ')
             return None
 
-        return send_response.root.result
+        # Persist identifiers provided by the remote agent for subsequent calls.
+        task_result = send_response.root.result
+        state['task_id'] = task_result.id
+        if getattr(task_result, 'context_id', None):
+            state['context_id'] = task_result.context_id
+        state['input_message_metadata'] = {'message_id': message_id}
+
+        return task_result
 
 
 def _get_initialized_routing_agent_sync() -> Agent:
